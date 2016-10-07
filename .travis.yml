@@ -3,36 +3,10 @@ language: c
 matrix:
   include:
     - os: linux
-      env: BUILD_OFFICIAL=1
+      env: DOCKER_TAG=arm64-xenial
       sudo: required
       services:
         - docker
-    - os: osx
-      env: BUILD_OFFICIAL=1
-      osx_image: xcode7.2
-    - os: linux
-      compiler: clang
-      env:
-        CFLAGS="-O1 -g -fsanitize=address -fno-omit-frame-pointer"
-        CONFIGURE_FLAGS="--disable-shared"
-        ASAN_OPTIONS="detect_leaks=1 symbolize=1"
-      addons:
-        apt:
-          packages:
-            - nasm
-    - os: linux
-      compiler: gcc
-      env: CONFIGURE_FLAGS="--with-12bit"
-    - os: linux
-      compiler: gcc
-      env: CONFIGURE_FLAGS="--with-jpeg8"
-      addons:
-        apt:
-          packages:
-            - nasm
-    - os: linux
-      compiler: gcc
-      env: CONFIGURE_FLAGS="--without-simd"
 
 addons:
   ssh_known_hosts: shell.sourceforge.net
@@ -45,6 +19,9 @@ before_install:
       git clone --depth=1 https://github.com/libjpeg-turbo/buildscripts.git ~/src/buildscripts &&
       openssl aes-256-cbc -K $encrypted_f92e8533f6f1_key -iv $encrypted_f92e8533f6f1_iv -in ci/deploy_ljt.enc -out ~/.ssh/id_rsa -d &&
       chmod 600 ~/.ssh/id_rsa;
+    fi
+  - if [ "${DOCKER_TAG:-}" != "" ]; then
+      docker pull mayeut/ljtbuilder2:${DOCKER_TAG}
     fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew install nasm homebrew/versions/gcc5 md5sha1sum Caskroom/versions/java6 &&
@@ -68,7 +45,7 @@ script:
         mv .git/shallow.bak .git/shallow;
       fi
     fi
-  - if [ "${BUILD_OFFICIAL:-}" == "" ]; then
+  - if [ "${BUILD_OFFICIAL:-}" == "" ] && [ "${DOCKER_TAG:-}" == "" ]; then
       autoreconf -fiv &&
       mkdir build &&
       pushd build &&
@@ -82,6 +59,16 @@ script:
         JSIMD_FORCENONE=1 make test FLOATTEST=32bit;
       fi &&
       popd;
+    fi
+  - if [ "${DOCKER_TAG:-}" != "" ]; then
+      docker run -v $TRAVIS_BUILD_DIR:/root/src/libjpeg-turbo -w /root/src/libjpeg-turbo -t mayeut/ljtbuilder2:${DOCKER_TAG} bash -c "
+      autoreconf -fiv &&
+      mkdir build &&
+      pushd build &&
+      ../configure ${CONFIGURE_FLAGS} &&
+      make -j &&
+      make test &&
+      popd;"
     fi
 
 after_failure:
