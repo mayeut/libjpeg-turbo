@@ -21,6 +21,7 @@ before_install:
       chmod 600 ~/.ssh/id_rsa;
     fi
   - if [ "${DOCKER_TAG:-}" != "" ]; then
+      docker run --rm --privileged multiarch/qemu-user-static:register &&
       docker pull mayeut/ljtbuilder2:${DOCKER_TAG};
     fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
