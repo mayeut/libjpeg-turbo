@@ -67,7 +67,7 @@ script:
       mkdir build &&
       pushd build &&
       ../configure ${CONFIGURE_FLAGS} &&
-      make -j &&
+      make -j 2 &&
       make test &&
       popd;";
     fi
