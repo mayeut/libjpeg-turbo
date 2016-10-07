@@ -21,7 +21,7 @@ before_install:
       chmod 600 ~/.ssh/id_rsa;
     fi
   - if [ "${DOCKER_TAG:-}" != "" ]; then
-      docker pull mayeut/ljtbuilder2:${DOCKER_TAG}
+      docker pull mayeut/ljtbuilder2:${DOCKER_TAG};
     fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew install nasm homebrew/versions/gcc5 md5sha1sum Caskroom/versions/java6 &&
@@ -68,7 +68,7 @@ script:
       ../configure ${CONFIGURE_FLAGS} &&
       make -j &&
       make test &&
-      popd;"
+      popd;";
     fi
 
 after_failure:
