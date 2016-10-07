@@ -7,6 +7,16 @@ matrix:
       sudo: required
       services:
         - docker
+    - os: linux
+      env: DOCKER_TAG=armhf-xenial
+      sudo: required
+      services:
+        - docker
+    - os: linux
+      env: DOCKER_TAG=ppc64el-xenial
+      sudo: required
+      services:
+        - docker
 
 addons:
   ssh_known_hosts: shell.sourceforge.net
