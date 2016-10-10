@@ -58,7 +58,7 @@ before_install:
         docker pull dcommander/buildljt;
       fi &&
       git clone --depth=1 https://github.com/libjpeg-turbo/buildscripts.git ~/src/buildscripts &&
-      if [ "$TRAVIS_REPO_SLUG" = "libjpeg-turbo/libjpeg-turbo" ]; then
+      if [ "$TRAVIS_REPO_SLUG" == "libjpeg-turbo/libjpeg-turbo" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         openssl aes-256-cbc -K $encrypted_f92e8533f6f1_key -iv $encrypted_f92e8533f6f1_iv -in ci/deploy_ljt.enc -out ~/.ssh/id_rsa -d &&
         chmod 600 ~/.ssh/id_rsa;
       fi;
@@ -123,7 +123,7 @@ after_failure:
     fi
 
 before_deploy:
-  - if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" = "libjpeg-turbo/libjpeg-turbo" ]; then
+  - if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" == "libjpeg-turbo/libjpeg-turbo" ]; then
       eval "$(ssh-agent -s)" &&
       ssh-add;
     fi
@@ -131,7 +131,7 @@ before_deploy:
 deploy:
   - provider: script
     script:
-      if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" = "libjpeg-turbo/libjpeg-turbo" ]; then
+      if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" == "libjpeg-turbo/libjpeg-turbo" ]; then
         mv ~/src/ljt.nightly/latest/log-$TRAVIS_OS_NAME.txt ~/src/ljt.nightly/latest/files/ &&
         ~/src/buildscripts/uploadljt dcommander $TRAVIS_BRANCH.$TRAVIS_OS_NAME;
       fi
@@ -139,7 +139,7 @@ deploy:
       branch: master
   - provider: script
     script:
-      if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" = "libjpeg-turbo/libjpeg-turbo" ]; then
+      if [ "${BUILD_OFFICIAL:-}" != "" ] && [ "$TRAVIS_REPO_SLUG" == "libjpeg-turbo/libjpeg-turbo" ]; then
         mv ~/src/ljt.nightly/latest/log-$TRAVIS_OS_NAME.txt ~/src/ljt.nightly/latest/files/ &&
         ~/src/buildscripts/uploadljt dcommander $TRAVIS_BRANCH.$TRAVIS_OS_NAME;
       fi
